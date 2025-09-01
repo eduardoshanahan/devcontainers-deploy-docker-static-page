@@ -1,0 +1,19 @@
+---
+# =============================================================================
+# ROLE-SPECIFIC VARIABLES - STATIC WEB DEPLOYMENT
+# =============================================================================
+
+# Static web page configuration
+deploy_static_web_image: "{{ static_web_image }}"
+deploy_static_web_container_name: "{{ static_web_container_name }}"
+deploy_static_web_port: "{{ static_web_port }}"
+deploy_static_web_restart_policy: "{{ static_web_restart_policy }}"
+
+# Traefik integration
+deploy_static_web_traefik_domain: "{{ traefik_domain }}"
+
+# Deployment paths - use user-writable directory
+deploy_static_web_base_dir: "{{ static_web_base_dir }}"
+deploy_static_web_config_dir: "{{ static_web_config_dir }}"
+deploy_static_web_content_dir: "{{ static_web_content_dir }}"
+deploy_static_web_logs_dir: "{{ static_web_logs_dir }}"

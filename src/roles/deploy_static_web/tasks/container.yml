@@ -1,0 +1,83 @@
+---
+# =============================================================================
+# DOCKER CONTAINER DEPLOYMENT - STATIC WEB
+# =============================================================================
+
+- name: Create nginx configuration for static web
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: "{{ deploy_static_web_config_dir }}/nginx.conf"
+    mode: "0640"
+    owner: "{{ deployment_user }}"
+    group: "{{ deployment_user }}"
+  notify: Restart static web container
+
+- name: Create modern static web page from template
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: "{{ deploy_static_web_content_dir }}/index.html"
+    mode: "0644"
+    owner: "{{ deployment_user }}"
+    group: "{{ deployment_user }}"
+  vars:
+    page_title: "Welcome to {{ vault_traefik_domain }}"
+
+- name: Stop and remove any existing static web container
+  community.docker.docker_container:
+    name: "{{ deploy_static_web_container_name }}"
+    state: absent
+  register: remove_result
+  failed_when: false
+
+- name: Check for containers using port 8080
+  community.docker.docker_container_info:
+    name: "{{ item }}"
+  register: port_containers
+  failed_when: false
+  loop: "{{ ansible_docker_containers | default([]) }}"
+  when: ansible_docker_containers is defined
+
+- name: Stop and remove containers using port 8080
+  community.docker.docker_container:
+    name: "{{ item.item }}"
+    state: absent
+  loop: "{{ port_containers.results }}"
+  when: 
+    - item.item is defined
+    - item.item != deploy_static_web_container_name
+  failed_when: false
+
+- name: Deploy static web container
+  community.docker.docker_container:
+    name: "{{ deploy_static_web_container_name }}"
+    image: "{{ deploy_static_web_image }}"
+    state: started
+    restart_policy: "{{ deploy_static_web_restart_policy }}"
+    ports:
+      - "{{ deploy_static_web_port }}:80"
+    volumes:
+      - "{{ deploy_static_web_content_dir }}:/usr/share/nginx/html:ro"
+      - "{{ deploy_static_web_config_dir }}/nginx.conf:/etc/nginx/conf.d/default.conf"
+      - "{{ deploy_static_web_logs_dir }}:/var/log/nginx"
+    networks:
+      - name: "{{ traefik_network_name }}"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.static-web.rule: "Host(`{{ vault_traefik_domain }}`)"
+      traefik.http.routers.static-web.entrypoints: "websecure"
+      traefik.http.routers.static-web.tls.certresolver: "letsencrypt"
+      traefik.http.services.static-web.loadbalancer.server.port: "80"
+      description: "Static web page container"
+  notify: Restart static web container
+
+- name: Check container logs for debugging
+  ansible.builtin.shell: |
+    docker logs {{ deploy_static_web_container_name }} --tail=20
+  register: container_logs
+  changed_when: false
+  ignore_errors: true
+
+- name: Display container logs
+  ansible.builtin.debug:
+    var: container_logs.stdout_lines
+  when: container_logs.stdout_lines is defined

@@ -1,0 +1,11 @@
+---
+# =============================================================================
+# HANDLERS - STATIC WEB DEPLOYMENT
+# =============================================================================
+
+- name: Restart static web container
+  community.docker.docker_container:
+    name: "{{ static_web_container_name }}"
+    state: started
+    restart: true
+  when: static_web_container_name is defined

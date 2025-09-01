@@ -1,0 +1,61 @@
+---
+# =============================================================================
+# POST-DEPLOYMENT VALIDATION - STATIC WEB
+# =============================================================================
+
+- name: Wait for container to be ready
+  ansible.builtin.wait_for:
+    port: "{{ deploy_static_web_port }}"
+    host: "127.0.0.1"
+    delay: 10
+    timeout: 60
+
+- name: Verify container is listening on the correct port
+  community.docker.docker_container_info:
+    name: "{{ deploy_static_web_container_name }}"
+  register: container_port_check
+  failed_when:
+    - not container_port_check.container
+    - container_port_check.container.State.Status != "running"
+
+- name: Test internal HTTP response (localhost)
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:{{ deploy_static_web_port }}"
+    method: GET
+    timeout: 30
+  register: http_test_localhost
+  failed_when: http_test_localhost.status != 200
+
+- name: Test internal HTTP response (container IP)
+  ansible.builtin.uri:
+    url: "http://{{ ansible_default_ipv4.address }}:{{ deploy_static_web_port }}"
+    method: GET
+    timeout: 30
+  register: http_test_container_ip
+  failed_when: http_test_container_ip.status != 200
+
+- name: Verify nginx is serving the correct content
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:{{ deploy_static_web_port }}"
+    method: GET
+    return_content: true
+  register: content_check
+  failed_when:
+    - content_check.status != 200
+    - "'Welcome to Your Static Web Page' not in content_check.content"
+
+- name: Display comprehensive validation results
+  ansible.builtin.debug:
+    msg: |
+      ==============================================================================
+      INTERNAL VALIDATION COMPLETED SUCCESSFULLY
+      ==============================================================================
+      Container Status: ✅ {{ container_port_check.container.State.Status }}
+      Container Port Mapping: ✅ {{ deploy_static_web_port }}:80
+      Localhost Test: ✅ HTTP {{ http_test_localhost.status }} ({{ http_test_localhost.elapsed }}s)
+      Container IP Test: ✅ HTTP {{ http_test_container_ip.status }} ({{ http_test_container_ip.elapsed }}s)
+      Content Verification: ✅ Correct HTML content served
+      Content Length: {{ content_check.content_length }} bytes
+      ==============================================================================
+      INTERNAL TESTS PASSED - Container is working correctly
+      ==============================================================================

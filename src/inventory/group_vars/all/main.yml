@@ -1,0 +1,53 @@
+---
+# =============================================================================
+# GLOBAL VARIABLES - STATIC WEB DEPLOYMENT
+# =============================================================================
+# Unified environment configuration using vault variables
+# =============================================================================
+
+# Server Configuration (from vault)
+vps_server_ip: "{{ vault_vps_server_ip }}"
+
+# Initial Deployment User (from vault)
+initial_deployment_user: "{{ vault_initial_deployment_user }}"
+initial_deployment_ssh_key: "{{ vault_initial_deployment_ssh_key }}"
+
+# Containers Deployment User (from vault)
+containers_deployment_user: "{{ vault_containers_deployment_user }}"
+containers_deployment_ssh_key: "{{ vault_containers_deployment_ssh_key }}"
+
+# Current deployment user (will be set based on task type)
+deployment_user: "{{ containers_deployment_user }}"
+deployment_ssh_key: "{{ containers_deployment_ssh_key }}"
+
+# Docker Network Configuration
+docker_network_name: "traefik-network"
+docker_network_subnet: "172.20.0.0/16"
+traefik_network_name: "{{ docker_network_name }}"
+
+# Static Web Configuration
+static_web_image: "nginx:alpine"
+static_web_container_name: "static-web-{{ vault_traefik_domain }}"
+static_web_port: "8080"
+static_web_restart_policy: "unless-stopped"
+
+# Directory Configuration
+static_web_base_dir: "/home/{{ containers_deployment_user }}/static-web-{{ vault_traefik_domain }}"
+static_web_config_dir: "/home/{{ containers_deployment_user }}/static-web-{{ vault_traefik_domain }}/config"
+static_web_content_dir: "/home/{{ containers_deployment_user }}/static-web-{{ vault_traefik_domain }}/content"
+static_web_logs_dir: "/home/{{ containers_deployment_user }}/static-web-{{ vault_traefik_domain }}/logs"
+
+# Traefik Integration (from vault)
+traefik_domain: "{{ vault_traefik_domain }}"
+
+# Directory and File Permissions
+static_web_dir_mode: "0755"
+static_web_config_file_mode: "0640"
+static_web_content_file_mode: "0644"
+
+# Firewall Configuration
+firewall_allowed_ports:
+  - 22    # SSH
+  - 80    # HTTP (Traefik)
+  - 443   # HTTPS (Traefik)
+  - 8080  # Static Web

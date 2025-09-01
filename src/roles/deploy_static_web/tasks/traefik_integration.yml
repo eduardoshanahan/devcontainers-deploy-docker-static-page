@@ -1,0 +1,22 @@
+---
+# =============================================================================
+# TRAEFIK INTEGRATION - STATIC WEB
+# =============================================================================
+
+- name: Verify container is running
+  community.docker.docker_container_info:
+    name: "{{ deploy_static_web_container_name }}"
+  register: container_info
+
+- name: Display Traefik integration status
+  ansible.builtin.debug:
+    msg: |
+      ==============================================================================
+      TRAEFIK INTEGRATION COMPLETED
+      ==============================================================================
+      Container: {{ deploy_static_web_container_name }}
+      Status: {{ container_info.container.State.Status if container_info.container else 'Not found' }}
+      Network: {{ traefik_network_name }}
+      Domain: {{ deploy_static_web_traefik_domain }}
+      Port: {{ deploy_static_web_port }}
+      ==============================================================================

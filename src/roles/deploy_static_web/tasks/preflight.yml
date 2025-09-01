@@ -1,0 +1,37 @@
+---
+# =============================================================================
+# PREFLIGHT CHECKS - STATIC WEB DEPLOYMENT
+# =============================================================================
+
+- name: Verify Docker is accessible
+  ansible.builtin.command: docker --version
+  register: docker_check
+  failed_when: docker_check.rc != 0
+  changed_when: false
+
+- name: List all Docker networks
+  ansible.builtin.command: docker network ls
+  register: all_networks
+  changed_when: false
+
+- name: Display available networks
+  ansible.builtin.debug:
+    msg: "Available Docker networks: {{ all_networks.stdout_lines }}"
+
+- name: Verify Traefik network exists
+  ansible.builtin.command: docker network ls --filter name={{ traefik_network_name }} --format "{{ '{{' }}.Name{{ '}}' }}"
+  register: network_check
+  changed_when: false
+
+- name: Create static web base directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ deployment_user }}"
+    group: "{{ deployment_user }}"
+  loop:
+    - "{{ deploy_static_web_base_dir }}"
+    - "{{ deploy_static_web_config_dir }}"
+    - "{{ deploy_static_web_content_dir }}"
+    - "{{ deploy_static_web_logs_dir }}"

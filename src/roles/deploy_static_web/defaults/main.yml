@@ -1,0 +1,10 @@
+---
+# =============================================================================
+# DEFAULT VALUES - STATIC WEB DEPLOYMENT
+# =============================================================================
+
+# These can be overridden in group_vars or host_vars
+deploy_static_web_image: "nginx:alpine"
+deploy_static_web_port: 8080
+deploy_static_web_restart_policy: "unless-stopped"
+deploy_static_web_traefik_domain: "localhost"
