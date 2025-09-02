@@ -1,0 +1,50 @@
+---
+# =============================================================================
+# CONTAINER VALIDATION - TRAEFIK INTEGRATION TESTING
+# =============================================================================
+
+- name: Display test configuration
+  ansible.builtin.debug:
+    msg: |
+      ==============================================================================
+      TRAEFIK INTEGRATION TESTING
+      ==============================================================================
+      Target Domain: {{ vault_traefik_domain }}
+      Container Name: {{ static_web_container_name }}
+      Expected Port: {{ static_web_port }}
+      ==============================================================================
+
+- name: Verify static web container is running
+  community.docker.docker_container_info:
+    name: "{{ static_web_container_name }}"
+  register: container_status
+  failed_when:
+    - not container_status.container
+    - container_status.container.State.Status != "running"
+
+- name: Check Traefik container status
+  community.docker.docker_container_info:
+    name: traefik
+  register: traefik_status
+  failed_when: false
+
+- name: Check all containers in Traefik network
+  community.docker.docker_container_info:
+    name: "{{ item }}"
+  loop:
+    - traefik
+    - "{{ static_web_container_name }}"
+  register: all_containers
+
+- name: Display container network status
+  ansible.builtin.debug:
+    msg: |
+      ==============================================================================
+      CONTAINER STATUS CHECK
+      ==============================================================================
+      {% for container in all_containers.results %}
+      Container: {{ container.container.Name if container.container else 'Not found' }}
+      Status: {{ container.container.State.Status if container.container else 'Not running' }}
+      Networks: {{ container.container.NetworkSettings.Networks.keys() | list if container.container else 'N/A' }}
+      {% endfor %}
+      ==============================================================================

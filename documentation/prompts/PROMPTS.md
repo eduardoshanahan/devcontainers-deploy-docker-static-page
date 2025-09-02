@@ -2,15 +2,24 @@
 
 ## Starting a new session
 
+### To continue working
+
+```text
+hello! 
+We are continuing working on this project together. Please read all the files, in full, and get familiar on how it is implemented. 
+Please remember that  we have a set of rules to follow described at .cursor/rules.
+You don't need to explain me what you learn, just report back when you are ready to go.
+```
+
 ```text
 Hello! We are continuing work on an Ansible project to deploy a static web page running in a Docker container, with Traefik as a reverse proxy already configured and running on the server.
 PROJECT STATUS:
-✅ Complete Ansible role structure built (src/roles/deploy_static_web/)
-✅ Inventory and group_vars configured for production/staging/development
-✅ Main playbook created (src/playbooks/deploy_static_web.yml)
-✅ Deployment script updated (scripts/deploy.sh)
-✅ Environment files cleaned up (.env, .env.example)
-✅ Devcontainer Dockerfile updated to include community.docker collection
+Complete Ansible role structure built (src/roles/deploy_static_web/)
+Inventory and group_vars configured
+Main playbook created (src/playbooks/deploy_static_web.yml)
+Deployment script updated (scripts/deploy.sh)
+Environment files cleaned up (.env, .env.example)
+Devcontainer Dockerfile updated to include community.docker collection
 ```
 
 ```text
@@ -22,7 +31,6 @@ Please remember that I want to abide by the rules present at .cursor/rules.
 Also, I want to have, at the end of our work, ansible scripts that can be used repeatedly, and wich will succeed every time.
 Please keep brief notes about what we are goiing to do, and the status at each point, in the documentation directory. They are for yourself, to be able to restart work each time we start a new session.
 ```
-
 
 ```text
 We are going to be working together around this project. when you edit or create new files, please remember to apply the rules at .cursor/rules before showing your suggestions. Please analyse the existing project, in full, to know what we are trying to do. You don't need to explain me what you learnt, just report back when you are done understanding.

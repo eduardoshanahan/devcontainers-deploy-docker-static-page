@@ -35,6 +35,9 @@ This directory contains comprehensive technical documentation for the Static Web
 # Deploy the application
 ./scripts/deploy.sh
 
+# Run comprehensive integration tests
+ansible-playbook -i src/inventory/hosts.yml src/playbooks/test_traefik_integration.yml --vault-password-file secrets/.vault_pass
+
 # Check deployment status
 ansible-playbook -i src/inventory/hosts.yml src/playbooks/deploy_static_web.yml --check
 
@@ -48,7 +51,9 @@ ansible-vault edit secrets/vault.yml
 ### Key Files
 
 - `src/playbooks/deploy_static_web.yml` - Main deployment playbook
-- `src/roles/deploy_static_web/` - Core deployment role
+- `src/playbooks/test_traefik_integration.yml` - **NEW**: Comprehensive integration testing playbook
+- `src/roles/deploy_static_web/` - Core deployment role with built-in validation
+- `src/roles/test_traefik_integration/` - **NEW**: Integration testing role
 - `secrets/vault.yml` - Encrypted configuration
 - `scripts/deploy.sh` - Deployment script
 

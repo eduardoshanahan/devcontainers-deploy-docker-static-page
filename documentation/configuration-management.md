@@ -337,7 +337,6 @@ git checkout src/inventory/group_vars/all/main.yml
 # Restore from backup
 cp src/inventory/group_vars/all/main.yml.backup src/inventory/group_vars/all/main.yml
 ```
-```
 
 ## **Creating Security Documentation**
 

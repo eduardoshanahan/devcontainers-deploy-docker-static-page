@@ -49,11 +49,13 @@ ansible-playbook -i src/inventory/hosts.yml src/playbooks/deploy_static_web.yml 
 #### Issue: Vault Password File Not Found
 
 **Symptoms:**
-```
+
+```text
 ERROR! Attempting to decrypt but no vault secrets found
 ```
 
 **Diagnosis:**
+
 ```bash
 # Check vault password file
 ls -la secrets/.vault_pass
@@ -61,6 +63,7 @@ cat secrets/.vault_pass
 ```
 
 **Solution:**
+
 ```bash
 # Create vault password file
 echo "your-vault-password" > secrets/.vault_pass
@@ -70,11 +73,13 @@ chmod 600 secrets/.vault_pass
 #### Issue: SSH Connection Failed
 
 **Symptoms:**
-```
+
+```text
 fatal: [vps]: UNREACHABLE! => {"changed": false, "msg": "Failed to connect to the host via ssh"}
 ```
 
 **Diagnosis:**
+
 ```bash
 # Test SSH connection manually
 ssh -i /path/to/key ubuntu@server-ip
@@ -84,6 +89,7 @@ ls -la ~/.ssh/
 ```
 
 **Solution:**
+
 ```bash
 # Fix SSH key permissions
 chmod 600 ~/.ssh/private_key
@@ -96,11 +102,13 @@ ssh -i ~/.ssh/private_key ubuntu@server-ip
 #### Issue: Docker Permission Denied
 
 **Symptoms:**
-```
+
+```text
 permission denied while trying to connect to the Docker daemon socket
 ```
 
 **Diagnosis:**
+
 ```bash
 # Check user groups
 groups $USER
@@ -108,6 +116,7 @@ id $USER
 ```
 
 **Solution:**
+
 ```bash
 # Add user to docker group
 sudo usermod -aG docker $USER
@@ -122,11 +131,13 @@ docker ps
 #### Issue: Container Not Starting
 
 **Symptoms:**
-```
+
+```text
 Container status: restarting
 ```
 
 **Diagnosis:**
+
 ```bash
 # Check container logs
 docker logs static-web-yourdomain.com
@@ -136,6 +147,7 @@ docker inspect static-web-yourdomain.com
 ```
 
 **Solution:**
+
 ```bash
 # Remove and recreate container
 docker rm -f static-web-yourdomain.com
@@ -145,11 +157,13 @@ docker rm -f static-web-yourdomain.com
 #### Issue: Port Already in Use
 
 **Symptoms:**
-```
+
+```text
 Bind for 0.0.0.0:8080 failed: port is already allocated
 ```
 
 **Diagnosis:**
+
 ```bash
 # Check port usage
 netstat -tulpn | grep :8080
@@ -157,6 +171,7 @@ lsof -i :8080
 ```
 
 **Solution:**
+
 ```bash
 # Stop conflicting container
 docker stop $(docker ps -q --filter "publish=8080")
@@ -168,11 +183,13 @@ docker stop $(docker ps -q --filter "publish=8080")
 #### Issue: Network Connection Failed
 
 **Symptoms:**
-```
+
+```text
 Container cannot connect to traefik-network
 ```
 
 **Diagnosis:**
+
 ```bash
 # Check network existence
 docker network ls | grep traefik
@@ -182,6 +199,7 @@ docker network inspect traefik-network
 ```
 
 **Solution:**
+
 ```bash
 # Create network if missing
 docker network create traefik-network
@@ -196,11 +214,13 @@ docker rm -f static-web-yourdomain.com
 #### Issue: 502 Bad Gateway
 
 **Symptoms:**
-```
+
+```text
 HTTP 502 Bad Gateway
 ```
 
 **Diagnosis:**
+
 ```bash
 # Check container status
 docker ps | grep static-web
@@ -213,6 +233,7 @@ curl -I http://localhost:8080
 ```
 
 **Solution:**
+
 ```bash
 # Restart container
 docker restart static-web-yourdomain.com
@@ -224,11 +245,13 @@ docker exec static-web-yourdomain.com nginx -t
 #### Issue: SSL Certificate Issues
 
 **Symptoms:**
-```
+
+```text
 SSL certificate not found or invalid
 ```
 
 **Diagnosis:**
+
 ```bash
 # Check Traefik logs
 docker logs traefik
@@ -238,6 +261,7 @@ openssl s_client -connect yourdomain.com:443 -servername yourdomain.com
 ```
 
 **Solution:**
+
 ```bash
 # Restart Traefik
 docker restart traefik
@@ -249,11 +273,13 @@ docker restart traefik
 #### Issue: Content Not Loading
 
 **Symptoms:**
-```
+
+```text
 Page loads but content is missing or incorrect
 ```
 
 **Diagnosis:**
+
 ```bash
 # Check content files
 docker exec static-web-yourdomain.com ls -la /usr/share/nginx/html/
@@ -263,6 +289,7 @@ docker exec static-web-yourdomain.com ls -la /usr/share/nginx/html/index.html
 ```
 
 **Solution:**
+
 ```bash
 # Fix file permissions
 docker exec static-web-yourdomain.com chown nginx:nginx /usr/share/nginx/html/index.html
@@ -276,11 +303,13 @@ docker exec static-web-yourdomain.com chown nginx:nginx /usr/share/nginx/html/in
 #### Issue: Domain Not Resolving
 
 **Symptoms:**
-```
+
+```text
 Domain name does not resolve to server IP
 ```
 
 **Diagnosis:**
+
 ```bash
 # Check DNS resolution
 nslookup yourdomain.com
@@ -291,6 +320,7 @@ whois yourdomain.com
 ```
 
 **Solution:**
+
 ```bash
 # Update DNS records
 # Point A record to server IP
@@ -300,11 +330,13 @@ whois yourdomain.com
 #### Issue: Firewall Blocking Traffic
 
 **Symptoms:**
-```
+
+```text
 Connection refused or timeout
 ```
 
 **Diagnosis:**
+
 ```bash
 # Check firewall status
 sudo ufw status
@@ -316,6 +348,7 @@ telnet yourdomain.com 443
 ```
 
 **Solution:**
+
 ```bash
 # Allow HTTP and HTTPS traffic
 sudo ufw allow 80/tcp
@@ -330,6 +363,7 @@ sudo ufw reload
 #### High CPU Usage
 
 **Diagnosis:**
+
 ```bash
 # Check container resource usage
 docker stats static-web-yourdomain.com
@@ -340,6 +374,7 @@ htop
 ```
 
 **Solution:**
+
 ```bash
 # Limit container resources
 docker update --cpus="0.5" --memory="512m" static-web-yourdomain.com
@@ -348,6 +383,7 @@ docker update --cpus="0.5" --memory="512m" static-web-yourdomain.com
 #### High Memory Usage
 
 **Diagnosis:**
+
 ```bash
 # Check memory usage
 free -h
@@ -355,6 +391,7 @@ docker stats --no-stream
 ```
 
 **Solution:**
+
 ```bash
 # Restart container
 docker restart static-web-yourdomain.com
@@ -403,6 +440,7 @@ docker logs -t static-web-yourdomain.com
 #### Template Rendering Errors
 
 **Diagnosis:**
+
 ```bash
 # Check template syntax
 ansible-playbook -i src/inventory/hosts.yml src/playbooks/deploy_static_web.yml --syntax-check
@@ -412,6 +450,7 @@ ansible -i src/inventory/hosts.yml all -m debug -a "var=traefik_domain"
 ```
 
 **Solution:**
+
 ```bash
 # Fix template syntax
 # Check variable definitions
@@ -421,6 +460,7 @@ ansible -i src/inventory/hosts.yml all -m debug -a "var=traefik_domain"
 #### Variable Resolution Issues
 
 **Diagnosis:**
+
 ```bash
 # Check variable values
 ansible -i src/inventory/hosts.yml all -m debug -a "var=variable_name"
@@ -430,6 +470,7 @@ ansible-vault view secrets/vault.yml
 ```
 
 **Solution:**
+
 ```bash
 # Fix variable definitions
 # Check vault encryption
@@ -587,12 +628,14 @@ When reporting issues, include:
 #### "Failed to connect to the host via ssh"
 
 **Common Causes:**
+
 - SSH key permissions incorrect
 - SSH key not in authorized_keys
 - Network connectivity issues
 - User account locked
 
 **Solutions:**
+
 ```bash
 # Fix SSH key permissions
 chmod 600 ~/.ssh/private_key
@@ -607,11 +650,13 @@ ssh-copy-id -i ~/.ssh/public_key user@server
 #### "Permission denied while trying to connect to the Docker daemon socket"
 
 **Common Causes:**
+
 - User not in docker group
 - Docker daemon not running
 - Incorrect socket permissions
 
 **Solutions:**
+
 ```bash
 # Add user to docker group
 sudo usermod -aG docker $USER
@@ -630,10 +675,12 @@ sudo systemctl status docker
 #### "Container name already in use"
 
 **Common Causes:**
+
 - Previous container not removed
 - Container name conflict
 
 **Solutions:**
+
 ```bash
 # Remove existing container
 docker rm -f container-name
@@ -648,10 +695,12 @@ docker container prune
 #### "Port is already allocated"
 
 **Common Causes:**
+
 - Another service using the port
 - Previous container still running
 
 **Solutions:**
+
 ```bash
 # Find process using port
 sudo netstat -tulpn | grep :8080
@@ -669,11 +718,13 @@ docker stop $(docker ps -q --filter "publish=8080")
 #### "Connection refused"
 
 **Common Causes:**
+
 - Service not running
 - Firewall blocking connection
 - Wrong port or IP
 
 **Solutions:**
+
 ```bash
 # Check service status
 systemctl status service-name
@@ -690,11 +741,13 @@ nc -zv hostname port
 #### "Name or service not known"
 
 **Common Causes:**
+
 - DNS resolution failure
 - Incorrect hostname
 - Network connectivity issues
 
 **Solutions:**
+
 ```bash
 # Check DNS resolution
 nslookup hostname
@@ -712,6 +765,7 @@ ping hostname
 ### Slow Response Times
 
 **Diagnosis:**
+
 ```bash
 # Check container resource usage
 docker stats
@@ -727,6 +781,7 @@ traceroute hostname
 ```
 
 **Solutions:**
+
 ```bash
 # Increase container resources
 docker update --cpus="1.0" --memory="1g" container-name
@@ -736,9 +791,10 @@ docker update --cpus="1.0" --memory="1g" container-name
 # Enable gzip compression
 ```
 
-### High Memory Usage
+### High Memory Usage performance
 
 **Diagnosis:**
+
 ```bash
 # Check memory usage
 free -h
@@ -749,6 +805,7 @@ docker logs container-name | grep -i memory
 ```
 
 **Solutions:**
+
 ```bash
 # Restart container
 docker restart container-name
@@ -759,9 +816,10 @@ docker update --memory="512m" container-name
 # Check for memory leaks in application
 ```
 
-### High CPU Usage
+### High CPU Usage performance
 
 **Diagnosis:**
+
 ```bash
 # Check CPU usage
 top
@@ -773,6 +831,7 @@ ps aux --sort=-%cpu | head
 ```
 
 **Solutions:**
+
 ```bash
 # Limit container CPU
 docker update --cpus="0.5" container-name
@@ -781,5 +840,3 @@ docker update --cpus="0.5" container-name
 # Add caching
 # Reduce processing load
 ```
-
-This completes the comprehensive troubleshooting documentation with all the missing sections and specific error message solutions.

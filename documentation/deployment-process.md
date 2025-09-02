@@ -87,7 +87,7 @@ The deployment script performs:
 
 ```bash
 # Run Ansible playbook directly
-ansible-playbook -i src/inventory/hosts.yml src/playbooks/deploy_static_web.yml --vault-id secrets/.vault_pass
+ansible-playbook -i src/inventory/hosts.yml src/playbooks/deploy_static_web.yml --vault-password-file secrets/.vault_pass
 ```
 
 ### Deployment Options
@@ -110,42 +110,72 @@ ansible-playbook -i src/inventory/hosts.yml src/playbooks/deploy_static_web.yml 
 
 ### Stage 1: Preflight Checks
 
-- **Server Connectivity**: SSH access verification
-- **Docker Status**: Docker daemon availability
-- **Network Validation**: Traefik network existence
-- **Port Availability**: Required port accessibility
+**NEW**: Enhanced preflight validation includes:
+
+- **Docker Accessibility**: Docker daemon version and accessibility verification
+- **Network Discovery**: Complete Docker network listing and analysis
+- **Traefik Network Validation**: Specific verification of `traefik-network` existence
+- **Directory Structure**: Automatic creation of required deployment directories
+- **Port Availability**: Validation of required port accessibility
 
 ### Stage 2: Container Deployment
 
-- **Directory Creation**: Application directories
-- **Configuration Generation**: Nginx and application configs
-- **Container Creation**: Docker container deployment
-- **Network Integration**: Traefik network connection
+**UPDATED**: Comprehensive container deployment process:
+
+- **Configuration Generation**: Nginx configuration and static web page templates
+- **Container Management**: Intelligent container removal and recreation
+- **Port Conflict Resolution**: Automatic detection and resolution of port conflicts
+- **Network Integration**: Seamless Traefik network connection
+- **Label Configuration**: Complete Traefik service discovery labels
+- **Logging Integration**: Container log monitoring and debugging
 
 ### Stage 3: Service Integration
 
-- **Traefik Discovery**: Automatic service detection
+**ENHANCED**: Advanced service integration:
+
+- **Container Verification**: Real-time container status monitoring
+- **Traefik Discovery**: Automatic service detection and registration
 - **SSL Provisioning**: Let's Encrypt certificate generation
-- **Health Validation**: Service health verification
-- **Content Verification**: Web page accessibility
+- **Health Validation**: Comprehensive service health verification
+- **Content Verification**: Web page content and accessibility validation
 
 ### Stage 4: Post-Deployment Validation
 
-- **Container Status**: Running state verification
-- **Port Accessibility**: Service port availability
-- **Content Delivery**: Web page content verification
-- **SSL Certificate**: HTTPS functionality validation
+**NEW**: Comprehensive validation suite:
+
+- **Container Readiness**: 60-second timeout with port accessibility testing
+- **Multi-Point Testing**: Localhost and container IP validation
+- **HTTP Response Validation**: 200 status code verification
+- **Content Verification**: HTML content validation and length checking
+- **Performance Metrics**: Response time and content delivery validation
 
 ## Validation and Testing
 
-### Automated Validation
+### Built-in Validation
 
-The deployment includes built-in validation:
+**UPDATED**: The deployment includes comprehensive built-in validation:
 
-- **Container Health**: Docker container status checks
-- **Port Testing**: HTTP response validation
-- **Content Verification**: Web page content validation
-- **SSL Testing**: HTTPS certificate validation
+- **Container Health**: Docker container status and network verification
+- **Port Testing**: Multi-point HTTP response validation (localhost and container IP)
+- **Content Verification**: Web page content validation with specific content checks
+- **Performance Monitoring**: Response time and content length validation
+- **Log Analysis**: Container log monitoring and debugging information
+
+### Integration Testing
+
+**NEW**: Comprehensive integration testing playbook:
+
+```bash
+# Run integration tests
+ansible-playbook -i src/inventory/hosts.yml src/playbooks/test_traefik_integration.yml --vault-password-file secrets/.vault_pass
+```
+
+**Integration Test Components**:
+
+- **Container Validation**: Static web and Traefik container status verification
+- **Network Validation**: Docker network connectivity and configuration testing
+- **SSL Validation**: HTTPS certificate and redirect testing
+- **Diagnostics**: Comprehensive system status and performance reporting
 
 ### Manual Testing
 
@@ -158,6 +188,9 @@ curl -I https://yourdomain.com
 
 # Check container logs
 docker logs static-web-yourdomain.com
+
+# Run comprehensive integration tests
+ansible-playbook -i src/inventory/hosts.yml src/playbooks/test_traefik_integration.yml --vault-password-file secrets/.vault_pass
 ```
 
 ### Health Check Commands
@@ -171,6 +204,9 @@ docker network inspect traefik-network
 
 # SSL certificate status
 openssl s_client -connect yourdomain.com:443 -servername yourdomain.com
+
+# Integration test results
+ansible-playbook -i src/inventory/hosts.yml src/playbooks/test_traefik_integration.yml --vault-password-file secrets/.vault_pass
 ```
 
 ## Troubleshooting Deployment
@@ -185,6 +221,9 @@ docker logs static-web-yourdomain.com
 
 # Verify configuration
 docker inspect static-web-yourdomain.com
+
+# Run integration tests for diagnostics
+ansible-playbook -i src/inventory/hosts.yml src/playbooks/test_traefik_integration.yml --vault-password-file secrets/.vault_pass
 ```
 
 #### Network Issues
@@ -193,6 +232,9 @@ docker inspect static-web-yourdomain.com
 # Check network connectivity
 docker network ls
 docker network inspect traefik-network
+
+# Run network validation tests
+ansible-playbook -i src/inventory/hosts.yml src/playbooks/test_traefik_integration.yml --vault-password-file secrets/.vault_pass --tags network_validation
 ```
 
 #### SSL Certificate Issues
@@ -203,6 +245,9 @@ docker logs traefik
 
 # Verify domain configuration
 nslookup yourdomain.com
+
+# Run SSL validation tests
+ansible-playbook -i src/inventory/hosts.yml src/playbooks/test_traefik_integration.yml --vault-password-file secrets/.vault_pass --tags ssl_validation
 ```
 
 ### Recovery Procedures
@@ -228,6 +273,13 @@ cp secrets/vault.yml.backup secrets/vault.yml
 ./scripts/deploy.sh
 ```
 
+#### Integration Testing Recovery
+
+```bash
+# Run comprehensive diagnostics
+ansible-playbook -i src/inventory/hosts.yml src/playbooks/test_traefik_integration.yml --vault-password-file secrets/.vault_pass --tags diagnostics
+```
+
 ## Deployment Best Practices
 
 ### Pre-Deployment
@@ -236,6 +288,7 @@ cp secrets/vault.yml.backup secrets/vault.yml
 - **Test in Staging**: Validate changes in test environment
 - **Review Changes**: Understand what will be deployed
 - **Schedule Maintenance**: Plan deployment windows
+- **Run Integration Tests**: Validate system health before deployment
 
 ### During Deployment
 
@@ -243,10 +296,21 @@ cp secrets/vault.yml.backup secrets/vault.yml
 - **Validate Each Stage**: Confirm each stage completion
 - **Document Issues**: Record any problems encountered
 - **Test Functionality**: Verify all features work
+- **Check Validation Results**: Review built-in validation output
 
 ### Post-Deployment
 
 - **Health Monitoring**: Monitor system health
 - **Performance Validation**: Check response times
 - **User Testing**: Validate user experience
+- **Integration Testing**: Run comprehensive test suite
 - **Documentation Update**: Update deployment records
+
+### Testing Integration
+
+**NEW**: Regular testing procedures:
+
+- **Daily**: Basic health checks and functionality testing
+- **Weekly**: Comprehensive integration testing
+- **Monthly**: Performance benchmarking and security validation
+- **Before Changes**: Always run integration tests before modifications

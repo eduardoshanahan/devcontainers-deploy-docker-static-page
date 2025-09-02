@@ -1,0 +1,44 @@
+---
+# =============================================================================
+# DIAGNOSTICS - TRAEFIK INTEGRATION TESTING
+# =============================================================================
+
+- name: Check Traefik logs for routing information
+  ansible.builtin.shell: |
+    set -eo pipefail
+    docker logs traefik --tail=20
+  register: traefik_logs
+  changed_when: false
+  failed_when: false
+
+- name: Check container logs for debugging
+  ansible.builtin.shell: |
+    set -eo pipefail
+    docker logs {{ static_web_container_name }} --tail=20
+  register: container_logs
+  changed_when: false
+  failed_when: false
+
+- name: Check Traefik container labels and configuration
+  community.docker.docker_container_info:
+    name: traefik
+  register: traefik_config
+  failed_when: false
+
+- name: Display logs and configuration
+  ansible.builtin.debug:
+    msg: |
+      ==============================================================================
+      TRAEFIK LOGS (Last 20 lines)
+      ==============================================================================
+      {{ traefik_logs.stdout if traefik_logs.stdout else 'No logs available' }}
+      ==============================================================================
+      CONTAINER LOGS (Last 20 lines)
+      ==============================================================================
+      {{ container_logs.stdout if container_logs.stdout else 'No logs available' }}
+      ==============================================================================
+      TRAEFIK CONTAINER CONFIGURATION
+      ==============================================================================
+      Labels: {{ traefik_config.container.Config.Labels if traefik_config.container else 'Not available' }}
+      Ports: {{ traefik_config.container.NetworkSettings.Ports if traefik_config.container else 'Not available' }}
+      ==============================================================================

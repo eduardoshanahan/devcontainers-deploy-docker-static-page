@@ -42,7 +42,7 @@
     name: "{{ item.item }}"
     state: absent
   loop: "{{ port_containers.results }}"
-  when: 
+  when:
     - item.item is defined
     - item.item != deploy_static_web_container_name
   failed_when: false

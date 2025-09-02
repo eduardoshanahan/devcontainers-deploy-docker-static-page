@@ -1,0 +1,8 @@
+---
+# =============================================================================
+# DEFAULT VALUES - TRAEFIK INTEGRATION TESTING
+# =============================================================================
+
+# Test configuration
+test_traefik_integration_timeout: 30
+test_traefik_integration_log_lines: 20

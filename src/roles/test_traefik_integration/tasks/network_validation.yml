@@ -1,0 +1,30 @@
+---
+# =============================================================================
+# NETWORK VALIDATION - TRAEFIK INTEGRATION TESTING
+# =============================================================================
+
+- name: Test internal container access (localhost)
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:{{ static_web_port }}"
+    method: GET
+    timeout: 10
+  register: internal_test
+  failed_when: internal_test.status != 200
+
+- name: Test Traefik internal access
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:80"
+    method: GET
+    timeout: 10
+  register: traefik_internal_test
+  failed_when: false
+
+- name: Test with Host header to simulate domain access
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:80"
+    method: GET
+    headers:
+      Host: "{{ vault_traefik_domain }}"
+    timeout: 10
+  register: host_header_test
+  failed_when: false

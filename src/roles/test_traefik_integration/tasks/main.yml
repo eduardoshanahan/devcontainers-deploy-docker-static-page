@@ -1,0 +1,16 @@
+---
+# =============================================================================
+# MAIN TASKS - TRAEFIK INTEGRATION TESTING ROLE
+# =============================================================================
+
+- name: Include container validation
+  ansible.builtin.include_tasks: container_validation.yml
+
+- name: Include network validation
+  ansible.builtin.include_tasks: network_validation.yml
+
+- name: Include SSL validation
+  ansible.builtin.include_tasks: ssl_validation.yml
+
+- name: Include diagnostics
+  ansible.builtin.include_tasks: diagnostics.yml
